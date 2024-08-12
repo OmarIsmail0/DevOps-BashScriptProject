@@ -21,7 +21,7 @@ changePermissionsOperation() {
         
         if [[ ! -e "$file_path" ]]; then
             yad --error --title="Error" --text="File not found."
-            return
+            continue
         fi
         
         permission_action=$(yad --list \
@@ -116,7 +116,7 @@ changeOwnerOperation() {
         
         if [[ ! -e "$file_path" ]]; then
             yad --error --title="Error" --text="File not found."
-            return
+            continue
         fi
         
         owner_user=$(yad --entry --title="Change Owner" --text="Enter the owner user (e.g., Omar):" --width=400)
@@ -137,65 +137,68 @@ changeOwnerOperation() {
 
 createBackup() {
     while true; do
-        clear
-        read -e -p "Enter the file path or (0) to back: " file_path
         
-        if [[ "$file_path" = 0 ]]; then
-            break
+        file_path=$(yad --entry --title="Create Backup" --text="Enter the Directory path (e.g. ./test):" --width=400)
+        
+        if [ $? -ne 0 ] || [ -z "$file_path" ]; then
+            return
         fi
         
-        if [[ ! -e "$file_path" ]]; then
-            echo "File not found"
+        if [[ ! -d "$file_path" ]]; then
+            yad --error --title="Error" --text="This isn't a Directory"
             continue
         fi
         
-        backup_name=$(echo "$file_path" | awk -F'/' '{print $NF}').tar.gz
-        echo "$backup_name"
+        backup_name=$(basename "$file_path").tar.gz
+        echo $backup_name
         tar -czvf "$backup_name" "$file_path" 2>/dev/null
         if [[ $? -ne 0 ]]; then
-            echo "Error: Failed to create backup."
-            continue
+            yad --error --title="Error" --text="Failed to create backup."
+        else
+            mv "$backup_name" "$BACKUP_DIR"
+            yad --info --title="Success" --text="Backup created successfully: $backup_name"
         fi
-        
-        clear
-        mv "$backup_name" "$BACKUP_DIR"
-        echo "Backup created successfully: $backup_name"
-        break
     done
 }
 
 restoreBackup(){
-    clear
+    # clear
     
     while true; do
+        action=$(yad --form \
+            --title="Restore Backup" \
+            --text="Choose an action: \n $(ls -lh "$BACKUP_DIR")" \
+            --field="File Name (e.g. filename.tar.gz):\n" \
+            --button="Restore:2" \
+            --button="Back:1" \
+            --button="Exit:0" \
+            --width=600 --height=400
+        )
         
-        read -e -p "Enter the file name (e.g. filename.tar.gz) or (0) or (L) to back: " file_path
+        if [ $? -e 0 ]; then
+            exit 0
+        fi
         
-        if [[ "$file_path" = 0 ]]; then
+        if [ $? -e 1 ]; then
             break
         fi
         
-        if [[ "$file_path" = "L" ]]; then
-            clear
-            ls -lh "$BACKUP_DIR"
-            continue
-        fi
-        
+        file_path=$(echo "$action" | awk -F'|' '{print $1}')
         echo "$BACKUP_DIR/$file_path"
-        
-        if [[ ! -e "$BACKUP_DIR/$file_path" ]]; then
-            echo "File not found"
-            continue
+        if [[ ! -d "$file_path" ]]; then
+            if [[ ! -e "$BACKUP_DIR/$file_path" ]]; then
+                yad --error --title="Error" --text="File not found in backup directory."
+                continue
+            fi
+            
+            tar -xzvf "$BACKUP_DIR/$file_path" -C "$BACKUP_DIR/"
+            if [[ $? -ne 0 ]]; then
+                yad --error --title="Error" --text="Failed to restore backup."
+            else
+                yad --info --title="Success" --text="Backup restored successfully to: $BACKUP_DIR"
+            fi
+            break
         fi
-        
-        tar -xzvf "$BACKUP_DIR/$file_path" -C "$BACKUP_DIR/"
-        if [[ $? -ne 0 ]]; then
-            echo "Error: Failed to restore backup."
-            continue
-        fi
-        
-        echo "Backup restored successfully to: $BACKUP_DIR"
-        break
         
     done
 }
@@ -322,6 +325,70 @@ cmdCode() {
             echo "Permission ownership has been cancelled"
             break
         fi
+    }
+    createBackup() {
+        while true; do
+            clear
+            read -e -p "Enter the directory path or (0) to back: " file_path
+            
+            if [[ "$file_path" = 0 ]]; then
+                break
+            fi
+            
+            if [[ ! -d "$file_path" ]]; then
+                echo "This isn't a directory"
+                continue
+            fi
+            
+            backup_name=$(echo "$file_path" | awk -F'/' '{print $NF}').tar.gz
+            echo "$backup_name"
+            tar -czvf "$backup_name" "$file_path" 2>/dev/null
+            if [[ $? -ne 0 ]]; then
+                echo "Error: Failed to create backup."
+                continue
+            fi
+            
+            clear
+            mv "$backup_name" "$BACKUP_DIR"
+            echo "Backup created successfully: $backup_name"
+            break
+        done
+    }
+    
+    restoreBackup(){
+        clear
+        
+        while true; do
+            
+            read -e -p "Enter the file name (e.g. filename.tar.gz) or (0) or (L) to back: " file_path
+            
+            if [[ "$file_path" = 0 ]]; then
+                break
+            fi
+            
+            if [[ "$file_path" = "L" ]]; then
+                clear
+                ls -lh "$BACKUP_DIR"
+                continue
+            fi
+            
+            echo "$BACKUP_DIR/$file_path"
+            
+            if [[ ! -e "$BACKUP_DIR/$file_path" ]]; then
+                echo "File not found"
+                continue
+            fi
+            
+            tar -xzvf "$BACKUP_DIR/$file_path" -C "$BACKUP_DIR/"
+            if [[ $? -ne 0 ]]; then
+                echo "Error: Failed to restore backup."
+                continue
+            fi
+            
+            echo "Backup restored successfully to: $BACKUP_DIR"
+            break
+            
+        done
     }
     
     while true; do
