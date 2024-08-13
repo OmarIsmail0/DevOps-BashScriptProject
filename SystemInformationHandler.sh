@@ -204,7 +204,7 @@ while true; do
     )
     
     exit_status=$?
-    echo $exit_status
+    
     if [ $exit_status -eq 1 ] || [ -z "$operation" ]; then
         exit 0
         elif [  $exit_status -eq 0 ]; then

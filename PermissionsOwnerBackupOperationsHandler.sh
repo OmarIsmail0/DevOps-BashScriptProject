@@ -162,8 +162,7 @@ createBackup() {
 }
 
 restoreBackup(){
-    # clear
-    
+    # clear 
     while true; do
         action=$(yad --form \
             --title="Restore Backup" \
@@ -202,6 +201,7 @@ restoreBackup(){
         
     done
 }
+
 while true; do
     operation=$(yad --list \
         --title="Permissions and Backup" \
