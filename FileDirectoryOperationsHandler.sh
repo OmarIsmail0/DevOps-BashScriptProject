@@ -17,7 +17,8 @@ createOperation() {
     while true; do
         path=$(yad --file-selection --directory --title="Select Directory" \
             --text="Choose the directory:" --height=500 --width=700 --center \
-        --button="Select:0" --button="Cancel:1")
+            --button="Select:0" --button="Cancel:1"
+        )
         
         if [[ $? -eq 1 ]]; then
             echo "Operation canceled by the user."

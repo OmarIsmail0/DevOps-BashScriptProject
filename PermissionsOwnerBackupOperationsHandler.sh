@@ -13,15 +13,14 @@ mkdir -p "$BACKUP_DIR"
 
 changePermissionsOperation() {
     while true; do
-        file_path=$(yad --entry --title="Change Permissions" --text="Enter the file path (e.g. ./test):" --width=400)
+        file_path=$(yad --file-selection --title="Select File/Directory" \
+            --text="Choose the file/directory:" --height=500 --width=700 --center \
+            --button="Select:0" --button="Cancel:1"
+        )
         
-        if [ $? -ne 0 ] || [ -z "$file_path" ]; then
-            return
-        fi
-        
-        if [[ ! -e "$file_path" ]]; then
-            yad --error --title="Error" --text="File not found."
-            continue
+        if [[ $? -eq 1 ]]; then
+            echo "Operation canceled by the user."
+            break
         fi
         
         permission_action=$(yad --list \
@@ -102,8 +101,6 @@ changePermissionsOperation() {
         
     done
     
-    
-    
 }
 
 changeOwnerOperation() {
@@ -162,7 +159,7 @@ createBackup() {
 }
 
 restoreBackup(){
-    # clear 
+    # clear
     while true; do
         action=$(yad --form \
             --title="Restore Backup" \
