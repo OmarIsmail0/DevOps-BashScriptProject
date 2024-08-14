@@ -1,7 +1,7 @@
 ## Summary
 The project is made to manage files and monitoring system.
 
-##Setup
+## Setup
   1. clone the project command: git clone [url]
   2. install "yad" command: sudo apt-get install yad
   3. give execution permission command: sudo chmod +x
