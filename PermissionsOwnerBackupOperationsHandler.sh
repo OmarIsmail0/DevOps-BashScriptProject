@@ -149,9 +149,11 @@ createBackup() {
         tar -czvf "$backup_name" "$file_path" 2>/dev/null
         if [[ $? -ne 0 ]]; then
             yad --error --title="Error" --text="Failed to create backup."
+            break
         else
             mv "$backup_name" "$BACKUP_DIR"
             yad --info --title="Success" --text="Backup created successfully: $backup_name"
+            break
         fi
     done
 }
