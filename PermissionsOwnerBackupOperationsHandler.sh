@@ -105,15 +105,14 @@ changePermissionsOperation() {
 
 changeOwnerOperation() {
     while true; do
-        file_path=$(yad --entry --title="Change Permissions" --text="Enter the file path (e.g. ./test):" --width=400)
+        file_path=$(yad --file-selection --title="Select File/Directory" \
+            --text="Choose the file/directory:" --height=500 --width=700 --center \
+            --button="Select:0" --button="Cancel:1"
+        )
         
-        if [ $? -ne 0 ] || [ -z "$file_path" ]; then
-            return
-        fi
-        
-        if [[ ! -e "$file_path" ]]; then
-            yad --error --title="Error" --text="File not found."
-            continue
+        if [[ $? -eq 1 ]]; then
+            echo "Operation canceled by the user."
+            break
         fi
         
         owner_user=$(yad --entry --title="Change Owner" --text="Enter the owner user (e.g., Omar):" --width=400)
@@ -135,15 +134,14 @@ changeOwnerOperation() {
 createBackup() {
     while true; do
         
-        file_path=$(yad --entry --title="Create Backup" --text="Enter the Directory path (e.g. ./test):" --width=400)
+        file_path=$(yad --file-selection --title="Select File/Directory" \
+            --text="Choose the file/directory:" --height=500 --width=700 --center \
+            --button="Select:0" --button="Cancel:1"
+        )
         
-        if [ $? -ne 0 ] || [ -z "$file_path" ]; then
-            return
-        fi
-        
-        if [[ ! -d "$file_path" ]]; then
-            yad --error --title="Error" --text="This isn't a Directory"
-            continue
+        if [[ $? -eq 1 ]]; then
+            echo "Operation canceled by the user."
+            break
         fi
         
         backup_name=$(basename "$file_path").tar.gz
@@ -159,25 +157,35 @@ createBackup() {
 }
 
 restoreBackup(){
-    # clear
     while true; do
-        action=$(yad --form \
-            --title="Restore Backup" \
-            --text="Choose an action: \n $(ls -lh "$BACKUP_DIR")" \
-            --field="File Name (e.g. filename.tar.gz):\n" \
-            --button="Restore:2" \
-            --button="Back:1" \
-            --button="Exit:0" \
-            --width=600 --height=400
+        
+        action=$(yad --file-selection --title="Select File/Directory" \
+            --text="Choose the file/directory:" --height=500 --width=700 --center \
+            --button="Select:0" --button="Cancel:1"
         )
         
-        if [ $? -e 0 ]; then
-            exit 0
-        fi
-        
-        if [ $? -e 1 ]; then
+        if [[ $? -eq 1 ]]; then
+            echo "Operation canceled by the user."
             break
         fi
+        
+        # action=$(yad --form \
+        #     --title="Restore Backup" \
+        #     --text="Choose an action: \n $(ls -lh "$BACKUP_DIR")" \
+        #     --field="File Name (e.g. filename.tar.gz):\n" \
+        #     --button="Restore:2" \
+        #     --button="Back:1" \
+        #     --button="Exit:0" \
+        #     --width=600 --height=400
+        # )
+        
+        # if [ $? -e 0 ]; then
+        #     exit 0
+        # fi
+        
+        # if [ $? -e 1 ]; then
+        #     break
+        # fi
         
         file_path=$(echo "$action" | awk -F'|' '{print $1}')
         echo "$BACKUP_DIR/$file_path"
