@@ -135,7 +135,7 @@ createBackup() {
     while true; do
         
         file_path=$(yad --file-selection --title="Select File/Directory" \
-            --text="Choose the file/directory:" --height=500 --width=700 --center \
+            --text="Choose the file/directory to create backup" --height=500 --width=700 --center \
             --button="Select:0" --button="Cancel:1"
         )
         
@@ -151,6 +151,7 @@ createBackup() {
             yad --error --title="Error" --text="Failed to create backup."
             break
         else
+            sleep 2
             mv "$backup_name" "$BACKUP_DIR"
             yad --info --title="Success" --text="Backup created successfully: $backup_name"
             break
