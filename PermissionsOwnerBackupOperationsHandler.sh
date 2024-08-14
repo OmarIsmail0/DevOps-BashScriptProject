@@ -111,22 +111,37 @@ changeOwnerOperation() {
         )
         
         if [[ $? -eq 1 ]]; then
-            echo "Operation canceled by the user."
+            break
+        fi
+
+        permissions=$(yad --form --title="Change Permissions" \
+            --field="Enter the owner user (e.g., Omar):" \
+            --field="Enter the owner group (e.g., Finance):" 
+        )
+        
+        if [ $? -ne 0 ]; then
             break
         fi
         
-        owner_user=$(yad --entry --title="Change Owner" --text="Enter the owner user (e.g., Omar):" --width=400)
-        owner_group=$(yad --entry --title="Change Owner" --text="Enter the owner group (e.g., Finance):" --width=400)
+        owner_user=$(echo "$permissions" | awk -F'|' '{print $1}')
+        owner_group=$(echo "$permissions" | awk -F'|' '{print $2}')
+
+        
+        # owner_user=$(yad --entry --title="Change Owner" --text="Enter the owner user (e.g., Omar):" --width=400)
+        # owner_group=$(yad --entry --title="Change Owner" --text="Enter the owner group (e.g., Finance):" --width=400)
         
         if [[ -n "$owner_user" || -n "$owner_group" ]]; then
             chown "$owner_user:$owner_group" "$file_path" 2>/dev/null
             if [[ $? -ne 0 ]]; then
                 yad --error --title="Error" --text="Failed to change owner."
+                break
             else
                 yad --info --title="Success" --text="Owner changed."
+                break
             fi
         else
             yad --info --title="Cancelled" --text="Owner change cancelled."
+            break
         fi
     done
 }
