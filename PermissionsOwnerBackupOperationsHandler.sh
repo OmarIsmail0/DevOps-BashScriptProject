@@ -152,9 +152,24 @@ createBackup() {
             break
         else
             sleep 2
-            mv "$backup_name" "$BACKUP_DIR"
-            yad --info --title="Success" --text="Backup created successfully: $backup_name"
-            break
+            if [[ -f "$BACKUP_DIR/$backup_name" || -d "$BACKUP_DIR/$backup_name" ]]; then
+                yad --title="Confirm Overwrite" --width=400 --height=50 --center \
+                --question --text="Destination File/Directory '$dest/$filename' already exists. Overwrite?"
+                if [[ $? -eq 0 ]]; then
+                    clear
+                    mv "$backup_name" "$BACKUP_DIR"
+                    yad --info --title="Success" --text="Backup created successfully: $backup_name"
+                    return
+                else
+                    yad --title="Copy Operation Canceled" --width=400 --height=50 --info --text="Copy Operation Canceled"
+                    return
+                fi
+            else
+                mv "$backup_name" "$BACKUP_DIR"
+                yad --info --title="Success" --text="Backup created successfully: $backup_name"
+                break
+            fi
+            
         fi
     done
 }
