@@ -63,27 +63,37 @@ get_top_processes_cpu() {
 }
 
 
+dire=$(yad --file-selection --directory --title="Generating System Metrics Report..." \
+    --text="Choose the directory for the report operation.:" --height=500 --width=700 --center \
+    --button="Select:0" --button="Cancel:1"
+)
+
+if [[ $? -eq 1 ]]; then
+    echo "Operation canceled by the user."
+    break
+fi
+
 echo "Generating System Metrics Report..."
 read -ep "Specify the report file location or press Enter to Skip: " output_file
 
-if [[ -d "$output_file" ]]; then
-    output_file+="/report.txt"
+if [[ -d "$dire" ]]; then
+    dire+="/report.txt"
 else
-    output_file="report.txt"
+    dire="report.txt"
 fi
-echo $output_file
-echo -e "****** System Metrics Report - $(date) ******" > $output_file
-echo "----------------------------------------------------------------------" >> $output_file
-get_cpu_usage "$output_file"
-get_memory_usage "$output_file"
-get_disk_space_usage "$output_file"
-get_system_uptime "$output_file"
-get_load_averages "$output_file"
-get_top_processes_memory "$output_file"
-get_top_processes_cpu "$output_file"
+echo $dire
+echo -e "****** System Metrics Report - $(date) ******" > $dire
+echo "----------------------------------------------------------------------" >> $dire
+get_cpu_usage "$dire"
+get_memory_usage "$dire"
+get_disk_space_usage "$dire"
+get_system_uptime "$dire"
+get_load_averages "$dire"
+get_top_processes_memory "$dire"
+get_top_processes_cpu "$dire"
 
 
-echo "Report saved to $REPORT_FILE"
+echo "Report saved to $dire"
 
 # echo "$get_cpu_usage"
 # echo "$get_memory_usage"
