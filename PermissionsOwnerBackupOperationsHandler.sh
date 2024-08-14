@@ -147,11 +147,11 @@ createBackup() {
         backup_name=$(basename "$file_path").tar.gz
         echo $backup_name
         tar -czvf "$backup_name" "$file_path" 2>/dev/null
+        sleep 1
         if [[ $? -ne 0 ]]; then
             yad --error --title="Error" --text="Failed to create backup."
             break
         else
-            sleep 2
             if [[ -f "$BACKUP_DIR/$backup_name" || -d "$BACKUP_DIR/$backup_name" ]]; then
                 yad --title="Confirm Overwrite" --width=400 --height=50 --center \
                 --question --text="Destination File/Directory '$dest/$filename' already exists. Overwrite?"
