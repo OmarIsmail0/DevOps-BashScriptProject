@@ -161,7 +161,7 @@ createBackup() {
 restoreBackup(){
     while true; do
         
-        action=$(yad --file-selection --title="Select File/Directory" \
+        file_path=$(yad --file-selection --file --title="Select File/Directory" \
             --text="Choose the file/directory:" --height=500 --width=700 --center \
             --button="Select:0" --button="Cancel:1"
         )
@@ -189,22 +189,22 @@ restoreBackup(){
         #     break
         # fi
         
-        file_path=$(echo "$action" | awk -F'|' '{print $1}')
-        echo "$BACKUP_DIR/$file_path"
-        if [[ ! -d "$file_path" ]]; then
-            if [[ ! -e "$BACKUP_DIR/$file_path" ]]; then
-                yad --error --title="Error" --text="File not found in backup directory."
-                continue
-            fi
-            
-            tar -xzvf "$BACKUP_DIR/$file_path" -C "$BACKUP_DIR/"
-            if [[ $? -ne 0 ]]; then
-                yad --error --title="Error" --text="Failed to restore backup."
-            else
-                yad --info --title="Success" --text="Backup restored successfully to: $BACKUP_DIR"
-            fi
-            break
+        # file_path=$(echo "$action" | awk -F'|' '{print $1}')
+        echo "$file_path"
+        # if [[ ! -d "$file_path" ]]; then
+        #     if [[ ! -e "$BACKUP_DIR/$file_path" ]]; then
+        #         yad --error --title="Error" --text="File not found in backup directory."
+        #         continue
+        #     fi
+        
+        tar -xzvf "$file_path" -C "$BACKUP_DIR/"
+        if [[ $? -ne 0 ]]; then
+            yad --error --title="Error" --text="Failed to restore backup."
+        else
+            yad --info --title="Success" --text="Backup restored successfully to: $BACKUP_DIR"
         fi
+        break
+        # fi
         
     done
 }
