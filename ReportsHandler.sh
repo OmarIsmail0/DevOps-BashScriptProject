@@ -73,9 +73,6 @@ if [[ $? -eq 1 ]]; then
     break
 fi
 
-echo "Generating System Metrics Report..."
-read -ep "Specify the report file location or press Enter to Skip: " output_file
-
 if [[ -d "$dire" ]]; then
     dire+="/report.txt"
 else
@@ -92,8 +89,10 @@ get_load_averages "$dire"
 get_top_processes_memory "$dire"
 get_top_processes_cpu "$dire"
 
+yad --info --title="Success" --text="Report Created." --width=400 --height=20 --center --button="Close:0"
 
 echo "Report saved to $dire"
+
 
 # echo "$get_cpu_usage"
 # echo "$get_memory_usage"
